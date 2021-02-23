@@ -1,0 +1,17 @@
+server:
+  port: 8055
+  servlet:
+    context-path: /spring-boot-quartz
+spring:
+  application:
+    name: spring-boot-quartz
+  profiles:
+    active: quartz,mysql
+  jackson:
+    default-property-inclusion: non_null
+  aop:
+    # 强制使用cglib进行动态代理，默认使用的是Java的动态代理。
+    proxy-target-class: true
+  # 出现错误时, 直接抛出异常
+  mvc:
+    throw-exception-if-no-handler-found: true

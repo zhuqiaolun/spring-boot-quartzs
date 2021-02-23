@@ -1,0 +1,359 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "定时任务平台接口API",
+    "version": "1.0.0",
+    "title": "定时任务平台",
+    "contact": {
+      "email": "demon@yetech.com.cn"
+    }
+  },
+  "host": "localhost:8055",
+  "basePath": "/spring-boot-quartz",
+  "tags": [
+    {
+      "name": "quartz",
+      "description": "定时任务"
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/api/quartz/list": {
+      "post": {
+        "tags": [
+          "quartz"
+        ],
+        "summary": "定时任务列表",
+        "description": "定时任务列表",
+        "operationId": "api_quartz_list",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/quartz/addJob": {
+      "post": {
+        "tags": [
+          "quartz"
+        ],
+        "summary": "新增定时任务",
+        "description": "新增定时任务",
+        "operationId": "api_quartz_addJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "参数",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["jobName","jobGroup","jobDesc","jobCron","jobStatus","jobData"],
+              "properties": {
+                "jobName": {
+                  "type": "string",
+                  "description": "任务名称",
+                  "example": "任务名称1"
+                },
+                "jobGroup": {
+                  "type": "string",
+                  "description": "任务组名",
+                  "example": "任务组名1"
+                },
+                "jobDesc": {
+                  "type": "string",
+                  "description": "任务描述",
+                  "example": "任务描述1"
+                },
+                "jobCron": {
+                  "type": "string",
+                  "description": "任务表达式",
+                  "example": "0/10 * * * * ? "
+                },
+                "jobStatus": {
+                  "type": "boolean",
+                  "description": "任务状态",
+                  "default": false
+                },
+                "jobData": {
+                  "$ref": "#/definitions/JobData"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/quartz/deleteJob": {
+      "post": {
+        "tags": [
+          "quartz"
+        ],
+        "summary": "删除定时任务",
+        "description": "删除定时任务",
+        "operationId": "api_quartz_deleteJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "参数",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["jobName","jobGroup"],
+              "properties": {
+                "jobName": {
+                  "type": "string",
+                  "description": "任务名称",
+                  "example": "任务名称1"
+                },
+                "jobGroup": {
+                  "type": "string",
+                  "description": "任务组名",
+                  "example": "任务组名1"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/quartz/resumeJob": {
+      "post": {
+        "tags": [
+          "quartz"
+        ],
+        "summary": "运行定时任务",
+        "description": "运行定时任务",
+        "operationId": "api_quartz_resumeJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "参数",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["jobName","jobGroup"],
+              "properties": {
+                "jobName": {
+                  "type": "string",
+                  "description": "任务名称",
+                  "example": "任务名称1"
+                },
+                "jobGroup": {
+                  "type": "string",
+                  "description": "任务组名",
+                  "example": "任务组名1"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/quartz/pauseJob": {
+      "post": {
+        "tags": [
+          "quartz"
+        ],
+        "summary": "暂停定时任务",
+        "description": "暂停定时任务",
+        "operationId": "api_quartz_pauseJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "参数",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["jobName","jobGroup"],
+              "properties": {
+                "jobName": {
+                  "type": "string",
+                  "description": "任务名称",
+                  "example": "任务名称1"
+                },
+                "jobGroup": {
+                  "type": "string",
+                  "description": "任务组名",
+                  "example": "任务组名1"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/quartz/runJobOne": {
+      "post": {
+        "tags": [
+          "quartz"
+        ],
+        "summary": "运行一次定时任务",
+        "description": "运行一次定时任务",
+        "operationId": "api_quartz_runJobOne",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "参数",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["jobName","jobGroup"],
+              "properties": {
+                "jobName": {
+                  "type": "string",
+                  "description": "任务名称",
+                  "example": "任务名称1"
+                },
+                "jobGroup": {
+                  "type": "string",
+                  "description": "任务组名",
+                  "example": "任务组名1"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiResponse": {
+      "type": "object",
+      "description": "请求响应统一格式",
+      "properties": {
+        "result": {
+          "type": "boolean",
+          "description": "true为正确返回"
+        },
+        "data": {
+          "type": "string",
+          "format": "object",
+          "description": "逻辑数据存放"
+        },
+        "msg": {
+          "type": "string",
+          "description": "数据消息"
+        },
+        "errCode": {
+          "type": "string",
+          "description": "错误消息码"
+        },
+        "errMsg": {
+          "type": "string",
+          "description": "错误消息描述"
+        }
+      }
+    },
+    "JobData": {
+      "type": "object",
+      "description": "任务数据",
+      "required": ["date"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "日期",
+          "format": "date"
+        },
+        "classPath": {
+          "type": "string",
+          "description": "任务类路径",
+          "example": "com.demon.task.hello.Hello"
+        },
+        "data": {
+          "type": "object",
+          "description": "其他数据",
+          "default": null
+        }
+      }
+    }
+  }
+
+}
