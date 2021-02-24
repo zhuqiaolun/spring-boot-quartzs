@@ -30,7 +30,7 @@ public class MyQuartzJob extends QuartzJobBean {
             System.out.println("定时任务执行时间："+ DateFormatUtils.format(date,"yyyy-MM-dd HH:mm:ss"));
             // 获取参数
             JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
-            //反射 - 寻找执行类
+            //反射 - 执行类
             Class<?> cls = Class.forName(jobDataMap.getString("classPath"));
             Method execute = cls.getMethod("execute", Map.class);
             execute.invoke(cls.newInstance(), jobDataMap.getWrappedMap());
