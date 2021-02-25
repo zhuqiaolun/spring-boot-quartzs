@@ -45,6 +45,54 @@
         }
       }
     },
+    "/api/quartz/list/page": {
+      "post": {
+        "tags": [
+          "quartz"
+        ],
+        "summary": "定时任务分页列表",
+        "description": "定时任务分页列表",
+        "operationId": "api_quartz_list_page",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "参数",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["current","size"],
+              "properties": {
+                "current": {
+                  "type": "string",
+                  "description": "当前页码数",
+                  "example": "1"
+                },
+                "size": {
+                  "type": "string",
+                  "description": "当前页条数",
+                  "example": "10"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
     "/api/quartz/addJob": {
       "post": {
         "tags": [
@@ -132,20 +180,7 @@
             "description": "参数",
             "required": true,
             "schema": {
-              "type": "object",
-              "required": ["jobName","jobGroup"],
-              "properties": {
-                "jobName": {
-                  "type": "string",
-                  "description": "任务名称",
-                  "example": "任务名称1"
-                },
-                "jobGroup": {
-                  "type": "string",
-                  "description": "任务组名",
-                  "example": "任务组名1"
-                }
-              }
+              "$ref": "#/definitions/JobIndex"
             }
           }
         ],
@@ -180,20 +215,7 @@
             "description": "参数",
             "required": true,
             "schema": {
-              "type": "object",
-              "required": ["jobName","jobGroup"],
-              "properties": {
-                "jobName": {
-                  "type": "string",
-                  "description": "任务名称",
-                  "example": "任务名称1"
-                },
-                "jobGroup": {
-                  "type": "string",
-                  "description": "任务组名",
-                  "example": "任务组名1"
-                }
-              }
+              "$ref": "#/definitions/JobIndex"
             }
           }
         ],
@@ -228,20 +250,7 @@
             "description": "参数",
             "required": true,
             "schema": {
-              "type": "object",
-              "required": ["jobName","jobGroup"],
-              "properties": {
-                "jobName": {
-                  "type": "string",
-                  "description": "任务名称",
-                  "example": "任务名称1"
-                },
-                "jobGroup": {
-                  "type": "string",
-                  "description": "任务组名",
-                  "example": "任务组名1"
-                }
-              }
+              "$ref": "#/definitions/JobIndex"
             }
           }
         ],
@@ -255,14 +264,14 @@
         }
       }
     },
-    "/api/quartz/runJobOne": {
+    "/api/quartz/runOneJob": {
       "post": {
         "tags": [
           "quartz"
         ],
         "summary": "运行一次定时任务",
         "description": "运行一次定时任务",
-        "operationId": "api_quartz_runJobOne",
+        "operationId": "api_quartz_runOneJob",
         "consumes": [
           "application/json"
         ],
@@ -276,22 +285,33 @@
             "description": "参数",
             "required": true,
             "schema": {
-              "type": "object",
-              "required": ["jobName","jobGroup"],
-              "properties": {
-                "jobName": {
-                  "type": "string",
-                  "description": "任务名称",
-                  "example": "任务名称1"
-                },
-                "jobGroup": {
-                  "type": "string",
-                  "description": "任务组名",
-                  "example": "任务组名1"
-                }
-              }
+              "$ref": "#/definitions/JobIndex"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/quartz/clearJob": {
+      "post": {
+        "tags": [
+          "quartz"
+        ],
+        "summary": "清空所有定时任务",
+        "description": "清空所有定时任务",
+        "operationId": "api_quartz_clearJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
         ],
         "responses": {
           "200": {
@@ -329,6 +349,17 @@
         "errMsg": {
           "type": "string",
           "description": "错误消息描述"
+        }
+      }
+    },
+    "JobIndex": {
+      "type": "object",
+      "required": ["jobIndex"],
+      "properties": {
+        "jobIndex": {
+          "type": "string",
+          "description": "任务Index",
+          "example": "562446d82079d2ffe71c36f508e26cd7"
         }
       }
     },

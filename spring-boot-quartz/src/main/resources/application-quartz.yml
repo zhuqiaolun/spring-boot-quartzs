@@ -4,7 +4,7 @@ spring:
     jdbc:
       # 初始化Quartz表结构,项目第一次启动配置程always,然后改成never 否则已生成的job会被初始化掉
       # always、never
-      initialize-schema: never
+      initialize-schema: always
     #设置quartz任务的数据持久化方式，默认是内存方式
     job-store-type: jdbc
     properties:

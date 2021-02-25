@@ -1,4 +1,7 @@
 demon:
   user:
-    quartzInitStart: true
+    quartzInit: true
+    quartzStatusMap:
+      NORMAL: "运行"
+      PAUSED: "暂停"
 

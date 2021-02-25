@@ -2,6 +2,7 @@ package com.demon.springbootquartz.quartz.service.impl;
 
 import com.demon.springbootquartz.quartz.aop.ServiceMonitor;
 import com.demon.springbootquartz.quartz.service.QuartzService;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -15,11 +16,21 @@ import java.util.*;
  * @date 2021/2/23 11:03
  * @description: 定时任务实现类
  */
+@Slf4j
 @Service
 public class QuartzServiceImpl implements QuartzService {
 
     @Resource
     private Scheduler scheduler;
+
+    @Override
+    public void initStart() {
+        try {
+            scheduler.start();
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public boolean getJobExist(String jobName, String jobGroup) throws Exception {
@@ -38,19 +49,21 @@ public class QuartzServiceImpl implements QuartzService {
             return false;
         }else {
             try {
+                // 构建job信息
                 // 创建jobDetail实例，绑定Job实现类
                 // 指明job的名称，所在组的名称，以及绑定job类
                 // 任务名称和组构成任务key
-                JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroup).withDescription(description).build();
+                jobClass.newInstance();
+                JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroup)
+                        .withDescription(description).build();
                 // 设置job参数
                 if (jobData != null && jobData.size() > 0) {
                     jobDetail.getJobDataMap().putAll(jobData);
                 }
                 // 定义调度触发规则
-                TriggerBuilder<CronTrigger> cronTriggerTriggerBuilder = TriggerBuilder.newTrigger().withIdentity(jobName, jobGroup)
-                        .withSchedule(CronScheduleBuilder.cronSchedule(jobTime))
-                        .withDescription(description).usingJobData(jobDetail.getJobDataMap());
-                Trigger trigger = cronTriggerTriggerBuilder.build();
+                CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(jobTime);
+                Trigger trigger = TriggerBuilder.newTrigger()
+                        .withIdentity(jobName, jobGroup).withSchedule(cronScheduleBuilder).build();
 
                 // 把作业和触发器注册到任务调度中
                 scheduler.scheduleJob(jobDetail, trigger);
@@ -59,11 +72,11 @@ public class QuartzServiceImpl implements QuartzService {
                 } else {
                     pauseJob(jobName, jobGroup);
                 }
+                return true;
             } catch (Exception e) {
-                e.printStackTrace();
-                throw new Exception(e);
+                log.error("添加定时任务【"+jobName+"】失败：{}",e.getMessage());
+                return false;
             }
-            return true;
         }
 
     }
@@ -79,15 +92,12 @@ public class QuartzServiceImpl implements QuartzService {
     @ServiceMonitor(jobName = 0,jobGroup = 1)
     public void updateJob(String jobName, String jobGroup, String jobTime) throws Exception {
         try {
-            JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
-            if(scheduler.getTriggersOfJob(jobKey).size() > 0){
-                TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
-                CronTrigger trigger = ((CronTrigger) scheduler.getTrigger(triggerKey))
-                        .getTriggerBuilder().withIdentity(triggerKey)
-                        .withSchedule(CronScheduleBuilder.cronSchedule(jobTime)).build();
-                // 重启触发器
-                scheduler.rescheduleJob(triggerKey, trigger);
-            }
+            TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
+            CronTrigger trigger = ((CronTrigger) scheduler.getTrigger(triggerKey))
+                    .getTriggerBuilder().withIdentity(triggerKey)
+                    .withSchedule(CronScheduleBuilder.cronSchedule(jobTime)).build();
+            // 重启触发器
+            scheduler.rescheduleJob(triggerKey, trigger);
         } catch (SchedulerException e) {
             e.printStackTrace();
             throw new Exception(e);
@@ -105,15 +115,13 @@ public class QuartzServiceImpl implements QuartzService {
     public void deleteJob(String jobName, String jobGroup) throws Exception {
         try {
             JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
-            if(scheduler.getTriggersOfJob(jobKey).size() > 0){
-                TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
-                // 停止触发器
-                scheduler.pauseTrigger(triggerKey);
-                // 移除触发器
-                scheduler.unscheduleJob(triggerKey);
-                // 删除任务
-                scheduler.deleteJob(jobKey);
-            }
+            TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
+            // 停止触发器
+            scheduler.pauseTrigger(triggerKey);
+            // 移除触发器
+            scheduler.unscheduleJob(triggerKey);
+            // 删除任务
+            scheduler.deleteJob(jobKey);
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception(e);
@@ -131,9 +139,7 @@ public class QuartzServiceImpl implements QuartzService {
     public void pauseJob(String jobName, String jobGroup) throws Exception {
         try {
             JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
-            if(scheduler.getTriggersOfJob(jobKey).size() > 0){
-                scheduler.pauseJob(jobKey);
-            }
+            scheduler.pauseJob(jobKey);
         } catch (SchedulerException e) {
             e.printStackTrace();
             throw new Exception(e);
@@ -151,9 +157,7 @@ public class QuartzServiceImpl implements QuartzService {
     public void resumeJob(String jobName, String jobGroup) throws Exception {
         try {
             JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
-            if(scheduler.getTriggersOfJob(jobKey).size() > 0){
-                scheduler.resumeJob(jobKey);
-            }
+            scheduler.resumeJob(jobKey);
         } catch (SchedulerException e) {
             e.printStackTrace();
             throw new Exception(e);
@@ -161,19 +165,30 @@ public class QuartzServiceImpl implements QuartzService {
     }
 
     /**
-     * 立即执行一个job
+     * 立即执行一个job（只运行一次）
      *
      * @param jobName  jobName
      * @param jobGroup jobGroup
      */
     @Override
-    @ServiceMonitor(jobName = 0,jobGroup = 1)
-    public void runJobOne(String jobName, String jobGroup) throws Exception {
+    public void runOneJob(String jobName, String jobGroup) throws Exception {
         try {
             JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
-            if(scheduler.getTriggersOfJob(jobKey).size() > 0){
-                scheduler.triggerJob(jobKey);
-            }
+            scheduler.triggerJob(jobKey);
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+            throw new Exception(e);
+        }
+    }
+
+    /**
+     * 清空所有JOB
+     * @throws Exception 异常
+     */
+    @Override
+    public void clear() throws Exception {
+        try {
+            scheduler.clear();
         } catch (SchedulerException e) {
             e.printStackTrace();
             throw new Exception(e);

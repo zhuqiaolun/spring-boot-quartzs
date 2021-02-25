@@ -1,12 +1,11 @@
 package com.demon.springbootquartz.quartz.aop;
 
-import com.demon.springbootquartz.quartz.util.SchedulerNullException;
 import com.demon.springbootquartz.quartz.service.QuartzService;
 import com.demon.springbootquartz.support.ResponseBean;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
@@ -30,25 +29,33 @@ public class QuartzServiceAspect {
     public void getJobExist(){}
 
     /**
-     * 可以执行切面点之前的操作
+     * 环绕
+     * 在切入点前后切入内容，并自己控制何时执行切入点自身的内容
+     * @param proceedingJoinPoint 参数
+     * @return 返回
+     * @throws Throwable 异常
      */
-    @Before("getJobExist()")
-    public void doBefore(JoinPoint joinPoint) throws Exception {
-        MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
+    @Around("getJobExist()")
+    public Object doAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        MethodSignature methodSignature = (MethodSignature)proceedingJoinPoint.getSignature();
         //判断是否有注解
         ServiceMonitor serviceMonitor = methodSignature.getMethod().getAnnotation(ServiceMonitor.class);
         if(serviceMonitor != null){
-            Object[] args = joinPoint.getArgs();
+            Object[] args = proceedingJoinPoint.getArgs();
             String jobName = String.valueOf(args[serviceMonitor.jobName()]);
             String jobGroup = String.valueOf(args[serviceMonitor.jobGroup()]);
-            if(!quartzService.getJobExist(jobName,jobGroup)){
+            if(quartzService.getJobExist(jobName,jobGroup)){
+                return proceedingJoinPoint.proceed();
+            }else{
                 ResponseBean responseBean = new ResponseBean();
                 responseBean.setResult(false);
-                responseBean.setErrMsg("任务不存在");
+                responseBean.setErrMsg("["+jobName+"-"+jobGroup+"]任务不存在");
                 responseBean.setErrCode("40004");
-                throw new SchedulerNullException(responseBean.getErrCode(),responseBean.getErrMsg());
+                System.out.println(responseBean.toString());
+                return responseBean;
             }
+        }else {
+            return proceedingJoinPoint.proceed();
         }
     }
-
 }

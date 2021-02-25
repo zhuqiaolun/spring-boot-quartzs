@@ -12,6 +12,18 @@ import java.util.Map;
  */
 public interface QuartzService {
 
+    /**
+     * 开启任务
+     */
+    void initStart();
+
+    /**
+     * 判断任务是否存在
+     * @param jobName 参数
+     * @param jobGroup 参数
+     * @return 返回
+     * @throws Exception 异常
+     */
     boolean getJobExist(String jobName, String jobGroup) throws Exception;
 
     /**
@@ -83,7 +95,13 @@ public interface QuartzService {
      * @param jobGroup jobGroup
      * @throws Exception 异常
      */
-    void runJobOne(String jobName, String jobGroup) throws Exception;
+    void runOneJob(String jobName, String jobGroup) throws Exception;
+
+    /**
+     * 清空所有JOB
+     * @throws Exception 异常
+     */
+    void clear() throws Exception;
 
     /**
      * 获取所有计划中的任务列表

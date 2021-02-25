@@ -6,6 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 /**
  * @author: Demon
  * @date 2021/2/23 11:25
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "demon.user")
 public class UserConfig {
 
-    private boolean quartzInitStart;
+    private boolean quartzInit;
+
+    private Map<String,String> quartzStatusMap;
 
 }
