@@ -4,13 +4,13 @@ Navicat MySQL Data Transfer
 Source Server         : 127.0.0.1
 Source Server Version : 50528
 Source Host           : 127.0.0.1:3306
-Source Database       : spring-boot-quartz
+Source Database       : spring_boot_quartz
 
 Target Server Type    : MYSQL
 Target Server Version : 50528
 File Encoding         : 65001
 
-Date: 2021-02-23 19:14:33
+Date: 2021-02-25 18:44:30
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -214,12 +214,15 @@ CREATE TABLE `qrtz_triggers` (
 DROP TABLE IF EXISTS `system_job`;
 CREATE TABLE `system_job` (
   `job_id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_index` varchar(50) DEFAULT NULL COMMENT '任务序号',
   `job_name` varchar(50) NOT NULL COMMENT '任务名',
   `job_group` varchar(50) NOT NULL COMMENT '任务组（类型）',
-  `job_cron` varchar(100) NOT NULL COMMENT '表达式',
-  `job_status` char(10) DEFAULT 'PAUSED' COMMENT '状态',
+  `job_cron` varchar(50) NOT NULL COMMENT '表达式',
+  `job_status` tinyint(4) DEFAULT NULL COMMENT '执行状态（初始化是否运行/暂停）',
   `job_description` varchar(200) DEFAULT NULL COMMENT '描述',
+  `job_data` text COMMENT '数据',
+  `job_init_status` tinyint(4) DEFAULT NULL COMMENT '初始化状态',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`job_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COMMENT='定时任务';
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COMMENT='定时任务';
