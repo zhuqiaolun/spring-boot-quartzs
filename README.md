@@ -1,4 +1,5 @@
 # spring-boot-quartzs
+添加了job任务表
 
 ### 初始化
 初始机制采取项目启动初始化Quartz表结构，同步任务表到Quartz表
